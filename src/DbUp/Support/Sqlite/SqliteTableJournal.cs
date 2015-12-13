@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Data;
+using System.Data.Common;
+using System.Data.SqlClient;
 using DbUp.Engine;
 using DbUp.Engine.Output;
 using DbUp.Engine.Transactions;
@@ -32,6 +35,11 @@ namespace DbUp.Support.SQLite
 	ScriptName TEXT NOT NULL,
 	Applied DATETIME NOT NULL
 )", schemaTableName, tableName);
+        }
+
+        protected override string DoesTableExistsSql(string tableName)
+        {
+            return string.Format("select count(*) from {0}", tableName);
         }
     }
 }

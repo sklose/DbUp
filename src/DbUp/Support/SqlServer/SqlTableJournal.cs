@@ -143,6 +143,11 @@ namespace DbUp.Support.SqlServer
 )", schemaTableName, tableName);
         }
 
+        protected virtual string DoesTableExistsSql(string tableName)
+        {
+            return string.Format("select object_id('{0}')", schemaTableName);
+        }
+
         private bool DoesTableExist()
         {
             return connectionManager().ExecuteCommandsWithManagedConnection(dbCommandFactory =>
@@ -151,10 +156,9 @@ namespace DbUp.Support.SqlServer
                 {
                     using (var command = dbCommandFactory())
                     {
-                        command.CommandText = string.Format("select count(*) from {0}", schemaTableName);
+                        command.CommandText = DoesTableExistsSql(schemaTableName);
                         command.CommandType = CommandType.Text;
-                        command.ExecuteScalar();
-                        return true;
+                        return command.ExecuteScalar() != DBNull.Value;
                     }
                 }
                 catch (SqlException)
