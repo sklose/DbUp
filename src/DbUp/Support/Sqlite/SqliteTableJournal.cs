@@ -24,14 +24,14 @@ namespace DbUp.Support.SQLite
         /// </summary>
         /// <param name="tableName"></param>
         /// <returns></returns>
-        protected override string CreateTableSql(string tableName)
+        protected override string CreateTableSql(string schemaTableName, string tableName)
         {
             return string.Format(
                             @"CREATE TABLE {0} (
-	SchemaVersionID INTEGER CONSTRAINT 'PK_SchemaVersions_SchemaVersionID' PRIMARY KEY AUTOINCREMENT NOT NULL,
+	SchemaVersionID INTEGER CONSTRAINT 'PK_{1}_SchemaVersionID' PRIMARY KEY AUTOINCREMENT NOT NULL,
 	ScriptName TEXT NOT NULL,
 	Applied DATETIME NOT NULL
-)", tableName);
+)", schemaTableName, tableName);
         }
     }
 }

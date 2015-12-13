@@ -15,6 +15,7 @@ namespace DbUp.Support.SqlServer
     /// </summary>
     public class SqlTableJournal : IJournal
     {
+        private readonly string tableName;
         private readonly string schemaTableName;
         private readonly Func<IConnectionManager> connectionManager;
         private readonly Func<IUpgradeLog> log;
@@ -31,6 +32,7 @@ namespace DbUp.Support.SqlServer
         /// </example>
         public SqlTableJournal(Func<IConnectionManager> connectionManager, Func<IUpgradeLog> logger, string schema, string table)
         {
+            tableName = table;
             schemaTableName = string.IsNullOrEmpty(schema) 
                 ? SqlObjectParser.QuoteSqlObjectName(table)
                 : SqlObjectParser.QuoteSqlObjectName(schema) + "." + SqlObjectParser.QuoteSqlObjectName(table);
@@ -94,7 +96,7 @@ namespace DbUp.Support.SqlServer
                 {
                     using (var command = dbCommandFactory())
                     {
-                        command.CommandText = CreateTableSql(schemaTableName);
+                        command.CommandText = CreateTableSql(schemaTableName, tableName);
 
                         command.CommandType = CommandType.Text;
                         command.ExecuteNonQuery();
@@ -129,15 +131,16 @@ namespace DbUp.Support.SqlServer
         /// <summary>
         /// The sql to exectute to create the schema versions table
         /// </summary>
+        /// <param name="schemaTableName"></param>
         /// <param name="tableName"></param>
         /// <returns></returns>
-        protected virtual string CreateTableSql(string tableName)
+        protected virtual string CreateTableSql(string schemaTableName, string tableName)
         {
             return string.Format(@"create table {0} (
-	[Id] int identity(1,1) not null constraint PK_SchemaVersions_Id primary key,
+	[Id] int identity(1,1) not null constraint PK_{1}_Id primary key,
 	[ScriptName] nvarchar(255) not null,
 	[Applied] datetime not null
-)", tableName);
+)", schemaTableName, tableName);
         }
 
         private bool DoesTableExist()
